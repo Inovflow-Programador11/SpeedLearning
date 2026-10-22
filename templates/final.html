@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_quiz.html" import quiz, score %}
+{% block title %}Teste final · SpeedLearning{% endblock %}
+{% block content %}
+<nav class="crumbs"><a href="{{ url_for('overview', course_id=course_id) }}">{{ course.title }}</a> · Teste final</nav>
+<h1>Teste final</h1>
+<p class="muted">{{ course.final_test|length }} perguntas sobre todos os assuntos do documento.</p>
+
+{% if result %}
+  {{ score(result) }}
+  <p>{% if result.percent >= 70 %}Excelente! Dominas os conteúdos deste documento.
+     {% elif result.percent >= 50 %}Bom trabalho, mas revê as secções onde erraste.
+     {% else %}Recomendamos rever os resumos e tentar novamente.{% endif %}</p>
+{% endif %}
+
+{% if course.final_test %}
+  {{ quiz(course.final_test, result, url_for('final_test', course_id=course_id), 'Entregar teste') }}
+{% else %}
+  <p class="muted">Não foi possível gerar perguntas para o teste final.</p>
+{% endif %}
+
+<div class="actions">
+  {% if result %}<a class="btn primary" href="{{ url_for('final_test', course_id=course_id) }}">Repetir teste</a>{% endif %}
+  <a class="btn" href="{{ url_for('overview', course_id=course_id) }}">Voltar ao índice</a>
+  <a class="btn" href="{{ url_for('index') }}">Novo PDF</a>
+</div>
+{% endblock %}

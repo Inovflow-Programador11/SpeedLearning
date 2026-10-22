@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_quiz.html" import quiz, score %}
+{% block title %}{{ section.title }} · SpeedLearning{% endblock %}
+{% block content %}
+{% set n = course.sections|length %}
+<nav class="crumbs">
+  <a href="{{ url_for('overview', course_id=course_id) }}">{{ course.title }}</a>
+  · Secção {{ index + 1 }} de {{ n }}
+</nav>
+<div class="progressbar"><div style="width: {{ ((index + 1) / n * 100)|round }}%"></div></div>
+
+<article class="card">
+  <h1>{{ section.title }}</h1>
+  <h2>Resumo</h2>
+  {% for para in section.summary.split('\n') if para.strip() %}<p>{{ para }}</p>{% endfor %}
+  {% if section.key_points %}
+    <h2>Pontos-chave</h2>
+    <ul class="keypoints">{% for k in section.key_points %}<li>{{ k }}</li>{% endfor %}</ul>
+  {% endif %}
+</article>
+
+<section class="card" id="quiz">
+  <h2>Avalia o que leste</h2>
+  {% if result %}{{ score(result) }}{% endif %}
+  {% if section.questions %}
+    {{ quiz(section.questions, result, url_for('section', course_id=course_id, index=index) ~ '#quiz', 'Verificar respostas') }}
+  {% else %}
+    <p class="muted">Não há perguntas para esta secção.</p>
+  {% endif %}
+  {% if result %}
+    <a class="btn" href="{{ url_for('section', course_id=course_id, index=index) }}#quiz">Tentar de novo</a>
+  {% endif %}
+</section>
+
+<div class="actions nav">
+  {% if index > 0 %}
+    <a class="btn" href="{{ url_for('section', course_id=course_id, index=index - 1) }}">← Anterior</a>
+  {% endif %}
+  {% if index + 1 < n %}
+    <a class="btn primary" href="{{ url_for('section', course_id=course_id, index=index + 1) }}">Próxima secção →</a>
+  {% else %}
+    <a class="btn primary" href="{{ url_for('final_test', course_id=course_id) }}">Fazer o teste final →</a>
+  {% endif %}
+</div>
+{% endblock %}

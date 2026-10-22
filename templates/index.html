@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Aprende um PDF em minutos</h1>
+  <p>Envia um documento PDF. O SpeedLearning divide-o em secções, cria um
+     <strong>resumo</strong> de cada uma, faz <strong>perguntas de escolha múltipla</strong>
+     após cada leitura e, no fim, um <strong>teste final</strong> sobre todos os assuntos.</p>
+</section>
+
+<form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data"
+      class="card upload" id="upload-form">
+  <label class="dropzone">
+    <input type="file" name="pdf" accept="application/pdf,.pdf" required>
+    <span>Clica para escolher um PDF</span>
+  </label>
+  <div class="mode">
+    <label><input type="radio" name="mode" value="auto" checked {% if not claude %}disabled{% endif %}>
+      IA (Claude) — resumos e perguntas de alta qualidade</label>
+    <label><input type="radio" name="mode" value="local" {% if not claude %}checked{% endif %}>
+      Modo local — rápido, sem internet (perguntas de completar frases)</label>
+    {% if not claude %}
+      <p class="hint">Para ativar o modo IA define a variável <code>ANTHROPIC_API_KEY</code>.</p>
+    {% endif %}
+  </div>
+  <button type="submit" class="btn primary">Gerar material de estudo</button>
+  <p class="loading" hidden>⏳ A analisar o documento… isto pode demorar um ou dois minutos.</p>
+</form>
+<script>
+  const f = document.getElementById('upload-form');
+  const input = f.querySelector('input[type=file]');
+  input.addEventListener('change', () => {
+    f.querySelector('.dropzone span').textContent = input.files[0]?.name || 'Clica para escolher um PDF';
+  });
+  f.addEventListener('submit', () => {
+    f.querySelector('.loading').hidden = false;
+    f.querySelector('button').disabled = true;
+  });
+</script>
+{% endblock %}

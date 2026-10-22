@@ -1,0 +1,36 @@
+{% macro quiz(questions, result, action, submit_label) %}
+<form method="post" action="{{ action }}" class="quiz">
+  {% for q in questions %}
+    {% set qi = loop.index0 %}
+    {% set a = result.answers[qi] if result else None %}
+    <fieldset class="question {% if a %}{{ 'right' if a.ok else 'wrong' }}{% endif %}">
+      <legend><span class="qnum">{{ loop.index }}.</span> {{ q.question }}</legend>
+      {% for opt in q.options %}
+        {% set oi = loop.index0 %}
+        <label class="option
+          {%- if a and oi == q.answer %} correct{% endif %}
+          {%- if a and a.chosen == oi and not a.ok %} chosen-wrong{% endif %}">
+          <input type="radio" name="q{{ qi }}" value="{{ oi }}"
+                 {% if a and a.chosen == oi %}checked{% endif %}
+                 {% if result %}disabled{% else %}required{% endif %}>
+          <span>{{ "ABCDEFGH"[oi] }}) {{ opt }}</span>
+        </label>
+      {% endfor %}
+      {% if a %}
+        <p class="explanation">
+          <strong>{{ "✔ Correto!" if a.ok else "✘ Errado." }}</strong> {{ q.explanation }}
+        </p>
+      {% endif %}
+    </fieldset>
+  {% endfor %}
+  {% if not result %}
+    <button type="submit" class="btn primary">{{ submit_label }}</button>
+  {% endif %}
+</form>
+{% endmacro %}
+
+{% macro score(result) %}
+<div class="score {{ 'good' if result.percent >= 70 else ('ok' if result.percent >= 50 else 'bad') }}">
+  Resultado: <strong>{{ result.correct }}/{{ result.total }}</strong> ({{ result.percent }}%)
+</div>
+{% endmacro %}

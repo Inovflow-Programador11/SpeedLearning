@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ course.title }} · SpeedLearning{% endblock %}
+{% block content %}
+<h1>{{ course.title }}</h1>
+<p class="muted">{{ course.filename }} · {{ course.sections|length }} secções ·
+  gerado {{ "com IA (Claude)" if course.generator == "claude" else "em modo local" }}</p>
+
+<ol class="toc">
+  {% for s in course.sections %}
+    {% set p = progress.get(loop.index0|string) %}
+    <li>
+      <a href="{{ url_for('section', course_id=course_id, index=loop.index0) }}">{{ s.title }}</a>
+      {% if p %}<span class="badge">{{ p[0] }}/{{ p[1] }}</span>{% endif %}
+    </li>
+  {% endfor %}
+</ol>
+
+<div class="actions">
+  <a class="btn primary" href="{{ url_for('section', course_id=course_id, index=0) }}">Começar a estudar</a>
+  <a class="btn" href="{{ url_for('final_test', course_id=course_id) }}">Ir para o teste final</a>
+  {% if progress.get('final') %}
+    <span class="badge">Teste final: {{ progress['final'][0] }}/{{ progress['final'][1] }}</span>
+  {% endif %}
+</div>
+{% endblock %}
