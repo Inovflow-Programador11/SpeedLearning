@@ -139,6 +139,7 @@ fieldset.q + fieldset.q { border-top: 1px solid var(--rule); padding-top: 20px; 
 .why b.no { color: var(--bad); }
 .score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .score .big { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+textarea { width: 100%; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 8px; font-size: .8rem; }
 .tag { font-family: var(--font-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
 </style>
 
@@ -612,6 +613,29 @@ function renderOverview() {
       el("button", { class: "btn primary", type: "button", onclick: () => renderSection(Math.min(done, course.sections.length - 1)) }, done ? "Continuar a estudar" : "Começar a estudar"),
       el("button", { class: "btn", type: "button", onclick: renderFinal }, "Ir para o teste final"))
   ), "overview");
+  if (course.generator !== "exemplo") app.append(exportBlock());
+}
+
+// Copia o curso para colar na página de estudo partilhável.
+function exportBlock() {
+  const json = JSON.stringify({ speedlearning: 1, course: { ...course } });
+  const area = el("textarea", { id: "export-json", readonly: true, rows: 4, class: "mono", hidden: true });
+  area.value = json;
+  const status = el("span", { class: "muted", role: "status" });
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(json);
+      status.textContent = "Copiado. Cola-o na página de estudo, em «Substituir conteúdo».";
+    } catch (_) {
+      area.hidden = false; area.focus(); area.select();
+      status.textContent = "Copia o texto selecionado (Ctrl+C / ⌘C).";
+    }
+  };
+  return el("section", { class: "sheet" },
+    el("h2", {}, "Partilhar como página de estudo"),
+    el("p", { class: "muted" }, "Copia este curso e cola-o na tua página de estudo SpeedLearning. Quem tiver o link estuda e faz os testes sem precisar de conta."),
+    el("div", { class: "row" }, el("button", { class: "btn", type: "button", onclick: copy }, "Copiar curso"), status),
+    area);
 }
 
 function quiz(questions, key, onGraded) {

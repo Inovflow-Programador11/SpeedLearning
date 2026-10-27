@@ -1,0 +1,351 @@
+<title>Energia nas células</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link id="fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style id="page-style">
+/* Layout: uma folha de estudo centrada; resumo com marcador fluorescente, perguntas como folha de respostas A–D. */
+:root {
+  --paper: #f3f5f9;
+  --sheet: #ffffff;
+  --ink: #18202e;
+  --ink-soft: #5a6478;
+  --rule: #dfe3ec;
+  --accent: #2443c9;
+  --accent-ink: #ffffff;
+  --marker: rgba(255, 221, 51, .55);
+  --good: #13824a;
+  --good-bg: #e3f4ea;
+  --bad: #c42b2b;
+  --bad-bg: #fbe6e6;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f131b; --sheet: #171c27; --ink: #e4e8f0; --ink-soft: #9aa3b5; --rule: #2a3142;
+    --accent: #8fa3ff; --accent-ink: #0f131b; --marker: rgba(255, 214, 51, .22);
+    --good: #5fd497; --good-bg: #133222; --bad: #ff8a8a; --bad-bg: #3a1a1d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f131b; --sheet: #171c27; --ink: #e4e8f0; --ink-soft: #9aa3b5; --rule: #2a3142;
+  --accent: #8fa3ff; --accent-ink: #0f131b; --marker: rgba(255, 214, 51, .22);
+  --good: #5fd497; --good-bg: #133222; --bad: #ff8a8a; --bad-bg: #3a1a1d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 64px;
+}
+.wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+#app { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+form { display: flex; flex-direction: column; gap: 20px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); font-family: var(--font-mono); font-weight: 500; }
+p { margin: 0; }
+.muted { color: var(--ink-soft); }
+.mono { font-family: var(--font-mono); font-size: .85rem; font-variant-numeric: tabular-nums; }
+header.top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; background: none; border: 0; color: var(--ink); cursor: pointer; padding: 0; }
+.brand span { color: var(--accent); }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 24px clamp(16px, 4vw, 32px); display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.btn {
+  font: 500 .95rem var(--font-display); padding: 10px 18px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--sheet); color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn:focus-visible, .opt input:focus-visible + .bubble, .drop:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row.split { justify-content: space-between; }
+
+/* Envio */
+.drop {
+  border: 2px dashed var(--rule); border-radius: 6px; padding: 28px 16px; text-align: center; cursor: pointer;
+  display: flex; flex-direction: column; gap: 6px; align-items: center;
+}
+.drop.over, .drop:hover { border-color: var(--accent); }
+.drop input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.drop strong { font-family: var(--font-display); font-size: 1.1rem; }
+.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.steps div { border-top: 3px solid var(--accent); padding-top: 8px; font-size: .95rem; }
+.steps b { display: block; font-family: var(--font-display); }
+@media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+.mode { display: flex; flex-direction: column; gap: 6px; font-size: .95rem; }
+.mode label { display: flex; gap: 8px; align-items: flex-start; }
+.mode input { margin-top: 6px; }
+.notice { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--paper); font-size: .95rem; }
+.notice.error { border-color: var(--bad); }
+
+/* Progresso */
+.log { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.log li { display: flex; gap: 10px; }
+.log .st { width: 1.2em; flex: none; text-align: center; }
+.log .done .st { color: var(--good); }
+.log .err .st { color: var(--bad); }
+.log .run .st { animation: pulse 1s infinite alternate; }
+@keyframes pulse { from { opacity: .3; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .log .run .st { animation: none; } }
+
+/* Índice */
+.toc { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.toc li { border-top: 1px solid var(--rule); }
+.toc li:last-child { border-bottom: 1px solid var(--rule); }
+.toc button {
+  width: 100%; display: grid; grid-template-columns: 2.4em minmax(0, 1fr) auto; gap: 8px; align-items: baseline;
+  background: none; border: 0; color: var(--ink); text-align: left; padding: 12px 4px; cursor: pointer; font: inherit;
+}
+.toc button:hover .t { color: var(--accent); }
+.toc .n { font-family: var(--font-mono); color: var(--ink-soft); font-size: .85rem; }
+.toc .t { font-family: var(--font-display); font-weight: 500; }
+.pill { font-family: var(--font-mono); font-size: .78rem; padding: 2px 8px; border-radius: 99px; background: var(--paper); border: 1px solid var(--rule); white-space: nowrap; }
+.pill.good { background: var(--good-bg); color: var(--good); border-color: transparent; }
+.pill.bad { background: var(--bad-bg); color: var(--bad); border-color: transparent; }
+
+/* Secção */
+.bar { height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+.bar div { height: 100%; background: var(--accent); }
+.summary p + p { margin-top: .8em; }
+.keys { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+.keys li span { background: linear-gradient(transparent 55%, var(--marker) 55%); padding: 0 2px; }
+
+/* Perguntas */
+.q { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.q legend { font-weight: 600; padding: 0; margin-bottom: 6px; display: flex; gap: 8px; }
+.q legend .mono { color: var(--ink-soft); padding-top: 3px; }
+fieldset.q + fieldset.q { border-top: 1px solid var(--rule); padding-top: 20px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.opt:hover { background: var(--paper); }
+.opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.bubble {
+  flex: none; width: 1.8em; height: 1.8em; border-radius: 50%; border: 1.5px solid var(--ink-soft);
+  display: grid; place-items: center; font: 500 .8rem var(--font-mono); margin-top: 1px;
+}
+.opt input:checked + .bubble { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.opt.correct { background: var(--good-bg); }
+.opt.correct .bubble { border-color: var(--good); color: var(--good); }
+.opt.correct input:checked + .bubble { background: var(--good); color: var(--sheet); }
+.opt.wrong { background: var(--bad-bg); }
+.opt.wrong input:checked + .bubble { background: var(--bad); border-color: var(--bad); color: var(--sheet); }
+.graded .opt { cursor: default; }
+.why { font-size: .95rem; padding-left: 8px; }
+.why b.ok { color: var(--good); }
+.why b.no { color: var(--bad); }
+.score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.score .big { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+textarea { width: 100%; background: var(--paper); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 8px; font-size: .8rem; }
+.tag { font-family: var(--font-mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+</style>
+<template id="page-markup"><div class="wrap">
+  <header class="top">
+    <button class="brand" id="home-btn" type="button">Speed<span>Learning</span></button>
+  </header>
+  <main id="app"></main>
+</div></template>
+<script type="application/json" id="course-data">{"title":"Energia nas células (exemplo)","filename":"exemplo-biologia.pdf","generator":"exemplo","sections":[{"title":"A fotossíntese","summary":"A fotossíntese é o processo pelo qual as plantas, algas e algumas bactérias convertem energia luminosa em energia química. Ocorre nos cloroplastos, onde a clorofila absorve sobretudo luz vermelha e azul.\nA planta consome dióxido de carbono e água e produz glicose, libertando oxigénio como subproduto. A glicose é depois usada como fonte de energia ou armazenada como amido.","key_points":["Converte energia luminosa em energia química","Ocorre nos cloroplastos, graças à clorofila","Entradas: CO₂ e água; saídas: glicose e O₂"],"questions":[{"question":"Em que organelo ocorre a fotossíntese?","options":["Mitocôndria","Cloroplasto","Ribossoma","Núcleo"],"answer":1,"explanation":"A fotossíntese ocorre nos cloroplastos, que contêm clorofila."},{"question":"Qual gás é libertado durante a fotossíntese?","options":["Dióxido de carbono","Azoto","Oxigénio","Metano"],"answer":2,"explanation":"O oxigénio é libertado como subproduto da decomposição da água."},{"question":"Porque é que as folhas parecem verdes?","options":["A clorofila reflete a luz verde","A clorofila absorve a luz verde","A glicose é verde","Os cloroplastos emitem luz verde"],"answer":0,"explanation":"A clorofila absorve luz vermelha e azul e reflete a verde."}]},{"title":"A respiração celular","summary":"A respiração celular decorre nas mitocôndrias de quase todas as células. A glicose é degradada na presença de oxigénio para produzir ATP, a principal molécula de energia da célula.\nComo resíduos, a respiração liberta dióxido de carbono e água. Por isso as mitocôndrias são chamadas as centrais energéticas da célula.","key_points":["Ocorre nas mitocôndrias","Glicose + oxigénio → ATP","Liberta CO₂ e água"],"questions":[{"question":"Qual é o principal produto energético da respiração celular?","options":["Glicose","Amido","ATP","Clorofila"],"answer":2,"explanation":"A respiração produz ATP, usado pela célula como fonte de energia."},{"question":"Onde decorre a respiração celular?","options":["Nas mitocôndrias","Nos cloroplastos","Na parede celular","No vacúolo"],"answer":0,"explanation":"As mitocôndrias são o local da respiração celular."},{"question":"Que substâncias são libertadas como resíduos?","options":["Oxigénio e glicose","Dióxido de carbono e água","ATP e amido","Azoto e água"],"answer":1,"explanation":"A degradação da glicose liberta CO₂ e água."}]}],"final_test":[{"question":"Que relação existe entre fotossíntese e respiração celular?","options":["São o mesmo processo","Os produtos de uma são os reagentes da outra","Ambas produzem oxigénio","Ambas ocorrem só em animais"],"answer":1,"explanation":"A fotossíntese produz glicose e O₂, que a respiração consome; a respiração liberta CO₂ e água, usados na fotossíntese."},{"question":"Qual destes organismos realiza fotossíntese?","options":["Fungos","Algas","Leões","Leveduras"],"answer":1,"explanation":"Plantas, algas e algumas bactérias fazem fotossíntese."},{"question":"Para que serve a glicose produzida pela planta?","options":["Só para dar cor às folhas","Como fonte de energia ou reserva (amido)","Para absorver luz","Para produzir clorofila a partir de luz verde"],"answer":1,"explanation":"A glicose é usada como energia ou armazenada como amido."}]}</script>
+<script id="page-script">
+"use strict";
+// Página de estudo: o curso vem embutido em #course-data. Quem pode editar
+// o artefacto substitui-o colando o curso exportado pela aplicação principal.
+const tpl = document.getElementById("page-markup");
+tpl.after(tpl.content.cloneNode(true));
+const app = document.getElementById("app");
+const course = JSON.parse(document.getElementById("course-data").textContent);
+const KEY = "speedlearning-estudo:" + hash(JSON.stringify(course));
+let results = {};
+try { results = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (_) {}
+let artifactApi = null;
+
+document.title = course.title;
+document.getElementById("home-btn").addEventListener("click", () => renderOverview());
+
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(results)); } catch (_) {} }
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat()) if (c != null && c !== false) node.append(c);
+  return node;
+}
+function pct(r) { return r.total ? Math.round(100 * r.correct / r.total) : 0; }
+function pill(r) {
+  if (!r) return null;
+  return el("span", { class: "pill " + (pct(r) >= 70 ? "good" : pct(r) < 50 ? "bad" : "") }, `${r.correct}/${r.total}`);
+}
+function show(nodes) { app.replaceChildren(...[].concat(nodes).filter(Boolean)); window.scrollTo({ top: 0 }); }
+
+function renderOverview() {
+  const done = course.sections.filter((_, i) => results[i]).length;
+  show([
+    el("section", { class: "sheet" },
+      el("div", {}, el("p", { class: "tag" }, course.generator === "exemplo" ? "Exemplo" : "Página de estudo"), el("h1", {}, course.title)),
+      el("p", { class: "muted mono" }, `${course.sections.length} secções · ${done} concluídas · teste final: ${course.final_test.length} perguntas`),
+      el("ol", { class: "toc" },
+        course.sections.map((s, i) => el("li", {},
+          el("button", { type: "button", onclick: () => renderSection(i) },
+            el("span", { class: "n" }, String(i + 1).padStart(2, "0")), el("span", { class: "t" }, s.title), pill(results[i]) || el("span")))),
+        el("li", {}, el("button", { type: "button", onclick: renderFinal },
+          el("span", { class: "n" }, "✎"), el("span", { class: "t" }, "Teste final"), pill(results.final) || el("span")))),
+      el("div", { class: "row" },
+        el("button", { class: "btn primary", type: "button", onclick: () => renderSection(Math.min(done, course.sections.length - 1)) }, done ? "Continuar a estudar" : "Começar a estudar"),
+        el("button", { class: "btn", type: "button", onclick: renderFinal }, "Ir para o teste final"))),
+    artifactApi ? ownerPanel() : null
+  ]);
+}
+
+function quiz(questions, key, onGraded) {
+  const prev = results[key];
+  const form = el("form", { class: prev ? "graded" : "" });
+  questions.forEach((q, qi) => {
+    const a = prev?.answers[qi];
+    form.append(el("fieldset", { class: "q" },
+      el("legend", {}, el("span", { class: "mono" }, `${qi + 1}.`), el("span", {}, q.question)),
+      q.options.map((opt, oi) => el("label", { class: prev ? (oi === q.answer ? "opt correct" : a === oi ? "opt wrong" : "opt") : "opt" },
+        el("input", { type: "radio", name: `${key}-q${qi}`, id: `${key}-q${qi}-${oi}`, value: oi, checked: a === oi, disabled: !!prev }),
+        el("span", { class: "bubble", "aria-hidden": "true" }, "ABCDEFGH"[oi]),
+        el("span", {}, opt))),
+      prev ? el("p", { class: "why" }, a === q.answer ? el("b", { class: "ok" }, "Certo. ") : el("b", { class: "no" }, "Errado. "), q.explanation) : null));
+  });
+  if (!prev) {
+    const missing = el("p", { class: "muted", hidden: true }, "Responde a todas as perguntas antes de verificar.");
+    form.append(missing, el("div", { class: "row" }, el("button", { class: "btn primary", type: "submit" }, key === "final" ? "Entregar teste" : "Verificar respostas")));
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const answers = questions.map((_, qi) => {
+        const c = form.querySelector(`input[name="${key}-q${qi}"]:checked`);
+        return c ? Number(c.value) : null;
+      });
+      if (answers.includes(null)) { missing.hidden = false; return; }
+      results[key] = { answers, correct: answers.filter((a, i) => a === questions[i].answer).length, total: questions.length };
+      save();
+      onGraded();
+    });
+  }
+  return form;
+}
+function scoreBlock(r, final) {
+  const p = pct(r);
+  const msg = final
+    ? p >= 70 ? "Excelente. Dominas os conteúdos deste documento." : p >= 50 ? "Bom trabalho. Revê as secções onde erraste." : "Revê os resumos e tenta outra vez."
+    : p >= 70 ? "Muito bem." : "Relê o resumo antes de avançar.";
+  return el("div", { class: "score" }, el("span", { class: "big" }, `${r.correct}/${r.total}`), el("span", { class: "muted" }, `${p}% · ${msg}`));
+}
+
+function renderSection(i) {
+  const s = course.sections[i], n = course.sections.length, r = results[i];
+  show([
+    el("div", { class: "row split" },
+      el("button", { class: "btn", type: "button", onclick: renderOverview }, "← Índice"),
+      el("span", { class: "mono muted" }, `Secção ${i + 1} de ${n}`)),
+    el("div", { class: "bar", role: "progressbar", "aria-valuemin": 0, "aria-valuemax": n, "aria-valuenow": i + 1 }, el("div", { style: `width:${(i + 1) / n * 100}%` })),
+    el("article", { class: "sheet" },
+      el("h1", {}, s.title),
+      el("h3", {}, "Resumo"),
+      el("div", { class: "summary" }, s.summary.split("\n").filter(x => x.trim()).map(x => el("p", {}, x))),
+      s.key_points.length ? [el("h3", {}, "Pontos-chave"), el("ul", { class: "keys" }, s.key_points.map(k => el("li", {}, el("span", {}, k))))] : null),
+    el("section", { class: "sheet", id: "quiz" },
+      el("h2", {}, "Avalia o que leste"),
+      r ? scoreBlock(r, false) : null,
+      s.questions.length ? quiz(s.questions, String(i), () => renderSection(i)) : el("p", { class: "muted" }, "Não há perguntas para esta secção."),
+      r ? el("div", { class: "row" }, el("button", { class: "btn", type: "button", onclick: () => { delete results[i]; save(); renderSection(i); } }, "Repetir perguntas")) : null),
+    el("div", { class: "row split" },
+      i > 0 ? el("button", { class: "btn", type: "button", onclick: () => renderSection(i - 1) }, "← Anterior") : el("span"),
+      i + 1 < n
+        ? el("button", { class: "btn primary", type: "button", onclick: () => renderSection(i + 1) }, "Próxima secção →")
+        : el("button", { class: "btn primary", type: "button", onclick: renderFinal }, "Fazer o teste final →"))
+  ]);
+  if (r) document.getElementById("quiz").scrollIntoView();
+}
+
+function renderFinal() {
+  const r = results.final;
+  show([
+    el("div", { class: "row split" },
+      el("button", { class: "btn", type: "button", onclick: renderOverview }, "← Índice"),
+      el("span", { class: "mono muted" }, `${course.final_test.length} perguntas`)),
+    el("section", { class: "sheet" },
+      el("div", {}, el("p", { class: "tag" }, "Teste final"), el("h1", {}, course.title)),
+      el("p", { class: "muted" }, "Perguntas sobre todos os assuntos do documento."),
+      r ? scoreBlock(r, true) : null,
+      course.final_test.length ? quiz(course.final_test, "final", renderFinal) : el("p", { class: "muted" }, "Este curso não tem teste final."),
+      r ? el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", onclick: () => { delete results.final; save(); renderFinal(); } }, "Repetir teste")) : null)
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// Só para quem pode editar: substituir o conteúdo e republicar a página
+// ---------------------------------------------------------------------------
+function validCourse(c) {
+  const q = x => x && typeof x.question === "string" && Array.isArray(x.options) && x.options.length >= 2 &&
+    Number.isInteger(x.answer) && x.answer >= 0 && x.answer < x.options.length;
+  return c && typeof c.title === "string" && Array.isArray(c.sections) && c.sections.length > 0 &&
+    c.sections.every(s => typeof s.title === "string" && typeof s.summary === "string" &&
+      Array.isArray(s.key_points) && Array.isArray(s.questions) && s.questions.every(q)) &&
+    Array.isArray(c.final_test) && c.final_test.every(q);
+}
+function pageHtml(c) {
+  const data = JSON.stringify({ title: c.title, filename: c.filename || "", generator: c.generator || "", sections: c.sections, final_test: c.final_test })
+    .replace(/</g, "\\u003c");
+  const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+    '<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>' +
+    `<title>${esc(c.title)}</title>\n` +
+    '<meta name="claude:viewport-fit-sides" content="cover">\n' +
+    document.getElementById("fonts").outerHTML + "\n" +
+    `<style id="page-style">${document.getElementById("page-style").textContent}</style>\n` +
+    document.getElementById("page-markup").outerHTML + "\n" +
+    `<script type="application/json" id="course-data">${data}<\/script>\n` +
+    `<script id="page-script">${document.getElementById("page-script").textContent}<\/script>\n` +
+    "</body></html>";
+}
+
+function ownerPanel() {
+  const area = el("textarea", { id: "import-json", rows: 5, class: "mono", placeholder: "Cola aqui o curso copiado na aplicação SpeedLearning («Copiar curso»)." });
+  const status = el("p", { class: "muted", role: "status" });
+  const btn = el("button", { class: "btn primary", type: "button" }, "Publicar este conteúdo");
+  btn.addEventListener("click", async () => {
+    let c;
+    try { const d = JSON.parse(area.value); c = d.course || d; } catch (_) {}
+    if (!validCourse(c)) { status.textContent = "O texto colado não é um curso válido. Usa o botão «Copiar curso» na aplicação SpeedLearning."; return; }
+    btn.disabled = true; status.textContent = "A publicar…";
+    try {
+      await artifactApi.publish(pageHtml(c));
+      status.textContent = "Publicado. A página vai recarregar com o novo conteúdo.";
+    } catch (e) {
+      btn.disabled = false;
+      status.textContent = {
+        conflict: "Alguém publicou uma versão nova entretanto. A página vai recarregar.",
+        not_writer: "Não tens permissão para alterar esta página.",
+        not_granted: "Não tens permissão para alterar esta página.",
+        too_large: "O curso é demasiado grande para uma página.",
+        rate_limited: "Demasiadas publicações seguidas. Tenta daqui a um minuto."
+      }[e?.code] || "Não foi possível publicar. Tenta outra vez.";
+    }
+  });
+  return el("section", { class: "sheet owner" },
+    el("p", { class: "tag" }, "Só visível para quem pode editar"),
+    el("h2", {}, "Substituir conteúdo"),
+    el("p", { class: "muted" }, "Na aplicação SpeedLearning, abre o curso e carrega em «Copiar curso». Cola-o aqui e publica. Quem tiver o link passa a ver o novo conteúdo; as notas guardadas de cada pessoa recomeçam."),
+    area, el("div", { class: "row" }, btn), status);
+}
+
+renderOverview();
+
+// O painel de edição aparece só a quem pode editar o artefacto.
+(async () => {
+  try {
+    const [user, api] = await Promise.all([window.claude?.use?.("user"), window.claude?.use?.("artifact")]);
+    if (api && user && await user.canEdit()) { artifactApi = api; if (app.querySelector(".toc")) renderOverview(); }
+  } catch (_) {}
+})();
+</script>
