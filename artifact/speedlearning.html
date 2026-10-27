@@ -223,6 +223,7 @@ function el(tag, attrs = {}, ...children) {
   return node;
 }
 function save() {
+  if (course?.generator === "exemplo") return;  // o exemplo nunca substitui o documento guardado
   try { localStorage.setItem(STORE_KEY, JSON.stringify({ course, results })); } catch (_) {}
 }
 function load() {
