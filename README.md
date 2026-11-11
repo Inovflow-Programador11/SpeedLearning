@@ -58,3 +58,10 @@ pytest
 - PDFs digitalizados (só imagem) não têm texto extraível e são rejeitados.
 - Limite de upload: 50 MB.
 - Em produção define `SECRET_KEY` e usa um servidor WSGI (ex.: `gunicorn app:app`).
+
+
+---
+
+## Outros projetos neste repositório
+
+- [`pc_lock_api/`](pc_lock_api/README.md) — API Python (com token) para bloquear/desbloquear remotamente um PC Windows com um ecrã de bloqueio e mensagem.

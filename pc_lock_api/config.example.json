@@ -1,0 +1,10 @@
+{
+  "token": "SUBSTITUA-pelo-resultado-de--python-main.py--generate-token",
+  "host": "0.0.0.0",
+  "port": 8765,
+  "unlock_pin": null,
+  "ssl_certfile": null,
+  "ssl_keyfile": null,
+  "state_file": "state.json",
+  "max_message_length": 500
+}
